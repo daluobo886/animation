@@ -3,32 +3,33 @@ const ctx = canvas.getContext('2d');
 const toggleBtn = document.getElementById('toggle');
 const resetBtn = document.getElementById('reset');
 const speedInput = document.getElementById('speed');
-const themeSelect = document.getElementById('theme');
 
-const themes = {
-  aurora: { baseHue: 180, spread: 60, saturation: 75, lightness: 62, glow: 0.4 },
-  sunset: { baseHue: 25, spread: 70, saturation: 82, lightness: 60, glow: 0.5 },
-  electric: { baseHue: 260, spread: 75, saturation: 80, lightness: 65, glow: 0.55 },
-  mono: { baseHue: 210, spread: 10, saturation: 12, lightness: 88, glow: 0.28 }
-};
-
-const config = {
-  particleCount: 140,
-  minRadius: 30,
-  maxRadius: 260,
-  pulseStrength: 18
-};
-
-let particles = [];
-let playing = true;
-let lastTime = 0;
-let hueOffset = 0;
-let dpr = window.devicePixelRatio || 1;
 let width = 0;
 let height = 0;
-let cx = 0;
-let cy = 0;
-let theme = themes[themeSelect.value];
+let dpr = window.devicePixelRatio || 1;
+let lastTime = 0;
+let playing = true;
+let progress = 0;
+
+const palette = {
+  bg: '#f5eddc',
+  stroke: '#d6413a',
+  fill: 'rgba(214, 65, 58, 0.12)',
+  accent: '#c4312e',
+  text: '#3a2f2a',
+  muted: '#6f5c4f'
+};
+
+const curvePoints = [
+  { x: 0.08, y: 0.12 },
+  { x: 0.2, y: 0.18 },
+  { x: 0.32, y: 0.32 },
+  { x: 0.44, y: 0.28 },
+  { x: 0.58, y: 0.42 },
+  { x: 0.7, y: 0.35 },
+  { x: 0.82, y: 0.58 },
+  { x: 0.92, y: 0.72 }
+];
 
 function resize() {
   width = canvas.clientWidth;
@@ -36,98 +37,264 @@ function resize() {
   canvas.width = width * dpr;
   canvas.height = height * dpr;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  cx = width / 2;
-  cy = height / 2;
 }
 
 window.addEventListener('resize', resize);
 resize();
 
-function createParticle() {
-  const angle = Math.random() * Math.PI * 2;
-  const radius = config.minRadius + Math.random() * (config.maxRadius - config.minRadius);
-  return {
-    angle,
-    radius,
-    speed: 0.15 + Math.random() * 0.55,
-    wobble: 0.4 + Math.random() * 1.2,
-    offset: Math.random() * Math.PI * 2
-  };
+function lerp(a, b, t) {
+  return a + (b - a) * t;
 }
 
-function reset() {
-  particles = Array.from({ length: config.particleCount }, createParticle);
-  hueOffset = Math.random() * 360;
-}
+function drawBackground() {
+  ctx.fillStyle = palette.bg;
+  ctx.fillRect(0, 0, width, height);
 
-reset();
-
-function drawCore(time) {
-  const pulse = Math.sin(time * 0.003) * 0.5 + 0.5;
-  const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, config.minRadius * 1.15);
-  gradient.addColorStop(0, `hsla(${theme.baseHue + hueOffset}, 80%, 65%, 0.25)`);
-  gradient.addColorStop(0.8, 'rgba(5, 9, 18, 0)');
-  ctx.fillStyle = gradient;
+  ctx.strokeStyle = 'rgba(106, 91, 77, 0.14)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([6, 10]);
   ctx.beginPath();
-  ctx.arc(cx, cy, config.minRadius * (1.05 + pulse * 0.08), 0, Math.PI * 2);
-  ctx.fill();
+  for (let i = 0; i <= 5; i++) {
+    const y = (height * 0.18) + i * (height * 0.14);
+    ctx.moveTo(width * 0.05, y);
+    ctx.lineTo(width * 0.95, y);
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
 }
 
-function animate(now) {
+function drawHouse() {
+  const baseX = width * 0.73;
+  const baseY = height * 0.55;
+  const w = width * 0.16;
+  const h = height * 0.22;
+
+  ctx.fillStyle = '#d9d0c1';
+  ctx.strokeStyle = '#6a5b4d';
+  ctx.lineWidth = 2;
+
+  ctx.beginPath();
+  ctx.moveTo(baseX + w * 0.1, baseY + h);
+  ctx.lineTo(baseX + w * 0.1, baseY + h * 0.35);
+  ctx.lineTo(baseX + w * 0.5, baseY);
+  ctx.lineTo(baseX + w * 0.9, baseY + h * 0.35);
+  ctx.lineTo(baseX + w * 0.9, baseY + h);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = '#b7a48c';
+  ctx.beginPath();
+  ctx.moveTo(baseX + w * 0.08, baseY + h * 0.35);
+  ctx.lineTo(baseX + w * 0.5, baseY - h * 0.2);
+  ctx.lineTo(baseX + w * 0.92, baseY + h * 0.35);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = '#ede7db';
+  ctx.fillRect(baseX + w * 0.2, baseY + h * 0.45, w * 0.2, h * 0.28);
+  ctx.strokeRect(baseX + w * 0.2, baseY + h * 0.45, w * 0.2, h * 0.28);
+
+  ctx.fillRect(baseX + w * 0.52, baseY + h * 0.55, w * 0.2, h * 0.38);
+  ctx.strokeRect(baseX + w * 0.52, baseY + h * 0.55, w * 0.2, h * 0.38);
+}
+
+function drawTickets() {
+  const ticket = (text, x, y, tilt = 0.06) => {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(tilt);
+    ctx.fillStyle = '#ffffffcc';
+    ctx.strokeStyle = '#6a5b4d';
+    ctx.lineWidth = 2;
+    const w = width * 0.14;
+    const h = height * 0.1;
+    ctx.beginPath();
+    ctx.roundRect(-w / 2, -h / 2, w, h, 10);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = palette.text;
+    ctx.font = `${Math.max(14, width * 0.028)}px "Noto Sans SC", sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, 0, 2);
+    ctx.restore();
+  };
+
+  ticket('股票', width * 0.75, height * 0.3, -0.08);
+  ticket('信贷', width * 0.83, height * 0.38, 0.05);
+}
+
+function drawCurve() {
+  const points = [];
+  for (let i = 0; i < curvePoints.length; i++) {
+    const p = curvePoints[i];
+    points.push({ x: p.x * width, y: p.y * height });
+  }
+
+  ctx.lineWidth = 4;
+  ctx.strokeStyle = palette.stroke;
+  ctx.fillStyle = palette.fill;
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+
+  const totalSegments = points.length - 1;
+  const total = totalSegments;
+  const scaled = progress * total;
+  const currentSegment = Math.floor(scaled);
+  const segmentT = scaled - currentSegment;
+
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, points[0].y);
+
+  for (let i = 0; i < currentSegment; i++) {
+    ctx.lineTo(points[i + 1].x, points[i + 1].y);
+  }
+
+  if (currentSegment < totalSegments) {
+    const start = points[currentSegment];
+    const end = points[currentSegment + 1];
+    const ix = lerp(start.x, end.x, segmentT);
+    const iy = lerp(start.y, end.y, segmentT);
+    ctx.lineTo(ix, iy);
+  }
+
+  ctx.stroke();
+
+  // fill under curve
+  ctx.lineTo(points[Math.min(currentSegment + 1, totalSegments)].x, height * 0.9);
+  ctx.lineTo(points[0].x, height * 0.9);
+  ctx.closePath();
+  ctx.fill();
+
+  const tip =
+    currentSegment < totalSegments
+      ? {
+          x: lerp(points[currentSegment].x, points[currentSegment + 1].x, segmentT),
+          y: lerp(points[currentSegment].y, points[currentSegment + 1].y, segmentT)
+        }
+      : points[points.length - 1];
+
+  ctx.fillStyle = palette.stroke;
+  ctx.beginPath();
+  ctx.arc(tip.x, tip.y, 7, 0, Math.PI * 2);
+  ctx.fill();
+
+  drawMagnet(tip);
+}
+
+function drawMagnet(tip) {
+  const magX = tip.x + width * 0.05;
+  const magY = tip.y - height * 0.05;
+  ctx.save();
+  ctx.translate(magX, magY);
+  ctx.rotate(-0.12);
+
+  // hand sleeve
+  ctx.fillStyle = '#b3a090';
+  ctx.strokeStyle = '#6a5b4d';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(-width * 0.03, -height * 0.015, width * 0.06, height * 0.04, 8);
+  ctx.fill();
+  ctx.stroke();
+
+  // magnet body
+  ctx.fillStyle = '#c4312e';
+  ctx.beginPath();
+  ctx.moveTo(-width * 0.028, height * 0.008);
+  ctx.lineTo(width * 0.028, height * 0.008);
+  ctx.lineTo(width * 0.028, height * 0.05);
+  ctx.lineTo(width * 0.018, height * 0.05);
+  ctx.lineTo(width * 0.018, height * 0.02);
+  ctx.lineTo(-width * 0.018, height * 0.02);
+  ctx.lineTo(-width * 0.018, height * 0.05);
+  ctx.lineTo(-width * 0.028, height * 0.05);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  // glow lines
+  ctx.strokeStyle = 'rgba(196, 49, 46, 0.6)';
+  ctx.lineWidth = 2;
+  for (let i = 0; i < 3; i++) {
+    const offset = i * 8;
+    ctx.beginPath();
+    ctx.moveTo(width * 0.032 + offset, height * 0.01);
+    ctx.lineTo(width * 0.032 + offset, -height * 0.01);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+function drawLabels() {
+  ctx.fillStyle = palette.text;
+  ctx.font = `${Math.max(18, width * 0.032)}px "Noto Sans SC", sans-serif`;
+  ctx.fillText('资产缩水', width * 0.06, height * 0.16);
+  ctx.fillStyle = palette.muted;
+  ctx.font = `${Math.max(12, width * 0.022)}px "Noto Sans SC", sans-serif`;
+  ctx.fillText('债务重组让债务消失，但资产价值以更快速度消失', width * 0.06, height * 0.2);
+}
+
+function update(now) {
   if (!lastTime) lastTime = now;
   const delta = (now - lastTime) / 1000;
   lastTime = now;
 
-  const speedScale = parseFloat(speedInput.value);
-  ctx.fillStyle = 'rgba(5, 9, 18, 0.2)';
-  ctx.fillRect(0, 0, width, height);
+  const speed = parseFloat(speedInput.value);
+  progress += delta * 0.18 * speed;
+  progress = Math.min(progress, 1);
 
-  drawCore(now);
-  ctx.globalCompositeOperation = 'lighter';
+  drawBackground();
+  drawCurve();
+  drawHouse();
+  drawTickets();
+  drawLabels();
 
-  particles.forEach((p, idx) => {
-    const hue = theme.baseHue + hueOffset + (idx / config.particleCount) * theme.spread;
-    const pulse = Math.sin(now * 0.002 + p.offset) * config.pulseStrength;
-    const orbitRadius = p.radius + pulse * p.wobble;
-    p.angle += p.speed * speedScale * delta;
-
-    const x = cx + Math.cos(p.angle) * orbitRadius;
-    const y = cy + Math.sin(p.angle) * orbitRadius * 0.7; // squash to mimic lens depth
-    const size = 3 + Math.sin(now * 0.005 + p.offset) * 1.8;
-
-    const gradient = ctx.createRadialGradient(x, y, 0, x, y, Math.max(size * 12, 30));
-    const alpha = 0.35 + Math.sin(now * 0.002 + idx) * 0.1;
-    gradient.addColorStop(0, `hsla(${hue}, ${theme.saturation}%, ${theme.lightness}%, ${0.8 * alpha})`);
-    gradient.addColorStop(0.5, `hsla(${hue + 12}, ${theme.saturation + 5}%, ${theme.lightness + 10}%, ${0.6 * alpha})`);
-    gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
-
-    ctx.fillStyle = gradient;
-    ctx.beginPath();
-    ctx.arc(x, y, size * 8, 0, Math.PI * 2);
-    ctx.fill();
-  });
-
-  ctx.globalCompositeOperation = 'source-over';
-  hueOffset = (hueOffset + delta * 12 * speedScale * theme.glow) % 360;
-
-  if (playing) requestAnimationFrame(animate);
+  if (playing && progress < 1) {
+    requestAnimationFrame(update);
+  } else if (playing && progress >= 1) {
+    // gentle idle pulse at end
+    requestAnimationFrame(update);
+  }
 }
 
-requestAnimationFrame(animate);
+function start() {
+  lastTime = 0;
+  playing = true;
+  requestAnimationFrame(update);
+}
+
+function reset() {
+  progress = 0;
+  lastTime = 0;
+  drawBackground();
+  drawCurve();
+  drawHouse();
+  drawTickets();
+  drawLabels();
+}
+
+reset();
+requestAnimationFrame(update);
 
 toggleBtn.addEventListener('click', () => {
   playing = !playing;
   toggleBtn.textContent = playing ? '暂停' : '播放';
   if (playing) {
     lastTime = 0;
-    requestAnimationFrame(animate);
+    requestAnimationFrame(update);
   }
 });
 
 resetBtn.addEventListener('click', () => {
   reset();
-});
-
-themeSelect.addEventListener('change', (e) => {
-  theme = themes[e.target.value];
+  if (!playing) {
+    toggleBtn.textContent = '暂停';
+    playing = true;
+  }
+  start();
 });

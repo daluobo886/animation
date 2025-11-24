@@ -3,57 +3,48 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>动画生成 - Neon Orbital</title>
+  <title>资产缩水动画演示</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <main class="page">
     <header class="hero">
       <div>
-        <p class="eyebrow">灵感来源</p>
-        <h1>以浏览器重现 YouTube 动画</h1>
+        <p class="eyebrow">房价下行 · 债务压顶</p>
+        <h1>用浏览器重现“资产缩水”的手绘风动画</h1>
         <p class="lede">
-          打开页面即可看到漂浮的霓虹光球在中心环绕、呼吸与交错，形成类似视频
-          <span class="chip">rFV7wdEX-Mo</span> 的节奏感动态。所有动画由 Canvas 实时绘制，可随时暂停、调整速度或切换色彩主题。
+          根据参考截图重做，使用 Canvas 画出房屋、债券/股票票据与一条持续下挫的红色价格曲线。
+          点击播放即可看到曲线被“债务磁铁”拖拽下坠，直观表现资产价值加速蒸发的情景。
         </p>
         <div class="controls">
           <button id="toggle">暂停</button>
-          <button id="reset">重置</button>
+          <button id="reset">重播</button>
           <label class="inline">
             速度
-            <input id="speed" type="range" min="0.1" max="2.5" step="0.05" value="1" />
-          </label>
-          <label class="inline">
-            主题
-            <select id="theme">
-              <option value="aurora">极光</option>
-              <option value="sunset">暮色</option>
-              <option value="electric">电光</option>
-              <option value="mono">冷白</option>
-            </select>
+            <input id="speed" type="range" min="0.5" max="2.5" step="0.1" value="1" />
           </label>
         </div>
       </div>
-      <div class="badge">HTML5 Canvas</div>
+      <div class="badge">Canvas 手绘效果</div>
     </header>
 
     <section class="canvas-wrap">
-      <canvas id="scene" aria-label="霓虹环绕动画"></canvas>
+      <canvas id="scene" aria-label="资产缩水动画"></canvas>
     </section>
 
     <section class="how">
-      <h2>玩法与调整</h2>
-      <ol>
-        <li>点击<b>暂停</b>快速对比静止帧，或重新播放观察轨迹。</li>
-        <li>拖动<b>速度</b>滑块，放慢观察细节或加快律动。</li>
-        <li>选择不同<b>主题</b>获取色彩风格：极光、暮色、电光或冷白。</li>
-        <li>窗口大小变化会自动适配分辨率，保持平滑帧率。</li>
-      </ol>
+      <h2>你会看到</h2>
+      <ul>
+        <li>房子与票据位于画面右侧，保持静态摆放。</li>
+        <li>红色曲线从左上角一路震荡下跌，逐步接近房子。</li>
+        <li>末端有一只“债务磁铁”手缓缓拉扯，使曲线继续下挫。</li>
+        <li>背景采用温暖米黄色，营造手绘金融解说的感觉。</li>
+      </ul>
     </section>
   </main>
 
   <footer class="footer">
-    <p>Canvas 实时渲染 · 可离线运行 · 没有第三方依赖</p>
+    <p>纯前端实现 · 无需依赖 · 适配桌面与移动端</p>
   </footer>
 
   <script src="script.js"></script>
