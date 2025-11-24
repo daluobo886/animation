@@ -1,0 +1,195 @@
+:root {
+  --bg: radial-gradient(circle at 20% 20%, #0b1b2e, #050912 55%);
+  --panel: rgba(255, 255, 255, 0.04);
+  --text: #e8f1fb;
+  --muted: #9db4cd;
+  --accent: #5af0ff;
+  --shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+  color-scheme: dark;
+  font-family: "Inter", "SF Pro Display", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  display: grid;
+  grid-template-rows: 1fr auto;
+}
+
+.page {
+  width: min(1100px, 92vw);
+  margin: 0 auto 2rem;
+  padding-top: 2.5rem;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: 20px;
+  background: var(--panel);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: var(--shadow);
+}
+
+.hero h1 {
+  margin: 0.35rem 0 0.4rem;
+  font-size: clamp(1.4rem, 2vw + 0.6rem, 2.1rem);
+}
+
+.eyebrow {
+  margin: 0;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.lede {
+  margin: 0;
+  line-height: 1.7;
+  color: #c9d9ed;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(90, 240, 255, 0.12);
+  color: #7be7ff;
+  border: 1px solid rgba(123, 231, 255, 0.35);
+  font-weight: 600;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+  margin-top: 0.9rem;
+}
+
+button,
+select,
+input[type="range"] {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 0.55rem 0.9rem;
+  font-size: 0.95rem;
+  transition: transform 0.15s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+button:hover,
+select:hover,
+input[type="range"]:hover {
+  transform: translateY(-1px);
+  border-color: rgba(90, 240, 255, 0.6);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+.inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.95rem;
+  color: #dbe8f8;
+}
+
+input[type="range"] {
+  width: 120px;
+  padding: 0.25rem 0.1rem;
+}
+
+select {
+  padding-right: 1.8rem;
+}
+
+.badge {
+  justify-self: end;
+  background: linear-gradient(120deg, rgba(90, 240, 255, 0.35), rgba(111, 154, 255, 0.4));
+  color: #0a1018;
+  font-weight: 700;
+  padding: 0.75rem 1rem;
+  border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(90, 240, 255, 0.35);
+}
+
+.canvas-wrap {
+  position: relative;
+  margin: 1.6rem 0;
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.05), rgba(5, 9, 18, 0.95));
+  box-shadow: var(--shadow);
+}
+
+#scene {
+  width: 100%;
+  height: clamp(360px, 55vw, 620px);
+  display: block;
+}
+
+.how {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem 1.4rem;
+  box-shadow: var(--shadow);
+}
+
+.how h2 {
+  margin: 0 0 0.6rem;
+}
+
+.how ol {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: #d1def3;
+  line-height: 1.6;
+}
+
+.footer {
+  text-align: center;
+  padding: 1rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+@media (max-width: 720px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .badge {
+    justify-self: start;
+  }
+
+  .controls {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .inline {
+    width: 100%;
+  }
+
+  input[type="range"] {
+    width: 100%;
+  }
+}
