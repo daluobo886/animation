@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>资产缩水动画演示</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">房价下行 · 债务压顶</p>
+        <h1>用浏览器重现“资产缩水”的手绘风动画</h1>
+        <p class="lede">
+          根据参考截图重做，使用 Canvas 画出房屋、债券/股票票据与一条持续下挫的红色价格曲线。
+          点击播放即可看到曲线被“债务磁铁”拖拽下坠，直观表现资产价值加速蒸发的情景。
+        </p>
+        <div class="controls">
+          <button id="toggle">暂停</button>
+          <button id="reset">重播</button>
+          <label class="inline">
+            速度
+            <input id="speed" type="range" min="0.5" max="2.5" step="0.1" value="1" />
+          </label>
+        </div>
+      </div>
+      <div class="badge">Canvas 手绘效果</div>
+    </header>
+
+    <section class="canvas-wrap">
+      <canvas id="scene" aria-label="资产缩水动画"></canvas>
+    </section>
+
+    <section class="how">
+      <h2>你会看到</h2>
+      <ul>
+        <li>房子与票据位于画面右侧，保持静态摆放。</li>
+        <li>红色曲线从左上角一路震荡下跌，逐步接近房子。</li>
+        <li>末端有一只“债务磁铁”手缓缓拉扯，使曲线继续下挫。</li>
+        <li>背景采用温暖米黄色，营造手绘金融解说的感觉。</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>纯前端实现 · 无需依赖 · 适配桌面与移动端</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
